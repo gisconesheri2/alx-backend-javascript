@@ -1,5 +1,8 @@
 export default function cleanSet(set, startString) {
   let newStr = '';
+  if (!set || !startString || !(set instanceof Set) || typeof startString !== 'string') {
+    return '';
+  }
   if (startString.length > 0) {
     set.forEach((word) => {
       if (word.startsWith(startString)) {
