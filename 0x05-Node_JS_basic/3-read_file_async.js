@@ -21,6 +21,12 @@ function countStudents (fileName) {
           }
         });
         console.log(`Number of students: ${numStds}`);
+        const sortedKeys = Object.keys(flds).map((fld) => fld.toLowerCase()).sort();
+        for (const k of sortedKeys) {
+          const fld = k.toUpperCase();
+          const stds = flds[k.toUpperCase()];
+          console.log(`Number of students in ${fld}: ${stds.length}. List: ${stds.join(', ')}`);
+        }
         for (const [fld, stds] of Object.entries(flds)) {
           console.log(`Number of students in ${fld}: ${stds.length}. List: ${stds.join(', ')}`);
         }
@@ -32,3 +38,4 @@ function countStudents (fileName) {
 }
 
 module.exports = countStudents;
+countStudents('database.csv');
