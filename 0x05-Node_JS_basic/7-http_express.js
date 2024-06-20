@@ -10,11 +10,11 @@ app.get('/', (_, res) => {
   res.send('Hello Holberton School!');
 });
 
-app.get('/students', (_, response) => {
+app.get('/students', (_, res) => {
+  const body = ['This is the list of our students'];
   countStudents(DB_PATH)
     .then((flds) => {
-      response.status(200);
-      const body = ['This is the list of our students'];
+      res.status(200);
       body.push(`Number of students: ${flds.numStds}`);
       const sortedKeys = Object.keys(flds).map((fld) => fld.toLowerCase()).sort();
       for (const k of sortedKeys) {
@@ -25,11 +25,15 @@ app.get('/students', (_, response) => {
         const stds = flds[k.toUpperCase()];
         body.push(`Number of students in ${fld}: ${stds.length}. List: ${stds.join(', ')}`);
       }
-      response.send(body.join('\n'));
+      res.send(body.join('\n'));
     })
-    .catch((_) => {
-      response.status(500);
-      response.send('Cannot load the database');
+    .catch((err) => {
+      body.push(err instanceof Error ? err.message : err.toString());
+      const resText = body.join('\n');
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Length', resText.length);
+      res.statusCode = 200;
+      res.write(Buffer.from(resText));
     });
 });
 
