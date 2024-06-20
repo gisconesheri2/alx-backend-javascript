@@ -1,6 +1,7 @@
-function countStudents (fileName) {
+const fs = require('fs');
+function countStudents(fileName) {
   return new Promise((resolve, reject) => {
-    const fs = require('fs');
+    
     fs.readFile(fileName, 'utf-8', (err, data) => {
       if (err) {
         reject(new Error('Cannot load the database'));
@@ -38,4 +39,3 @@ function countStudents (fileName) {
 }
 
 module.exports = countStudents;
-countStudents('database.csv');
