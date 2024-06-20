@@ -1,7 +1,6 @@
 const fs = require('fs');
-function countStudents(fileName) {
+function countStudents (fileName) {
   return new Promise((resolve, reject) => {
-    
     fs.readFile(fileName, 'utf-8', (err, data) => {
       if (err) {
         reject(new Error('Cannot load the database'));
@@ -22,18 +21,12 @@ function countStudents(fileName) {
           }
         });
         console.log(`Number of students: ${numStds}`);
-        const sortedKeys = Object.keys(flds).map((fld) => fld.toLowerCase()).sort();
-        for (const k of sortedKeys) {
-          const fld = k.toUpperCase();
-          const stds = flds[k.toUpperCase()];
-          console.log(`Number of students in ${fld}: ${stds.length}. List: ${stds.join(', ')}`);
-        }
         for (const [fld, stds] of Object.entries(flds)) {
           console.log(`Number of students in ${fld}: ${stds.length}. List: ${stds.join(', ')}`);
         }
+        flds.numStds = numStds;
+        resolve(flds);
       }
-
-      resolve(true);
     });
   });
 }

@@ -1,20 +1,30 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 
-const path = require('path');
-const child = require('child_process');
+process.argv[2] = './database.csv';
+const app = require('./5-http');
 
-const exec = path.join(__dirname, '.', '1-stdin.js');
-const proc = child.spawn("node", [exec], { stdio: 'pipe' });
+chai.use(chaiHttp);
+chai.should();
 
-describe('main', () => {
-  it('the user is entering a name', function (done) {
-    proc.stdout.once('data', (test) => {
-      expect(test.toString()).to.equal('Welcome to Holberton School, what is your name?\n');
-      proc.stdin.write('Guillaumeh\r');
-      proc.stdout.once('data', (test) => {
-        expect(test.toString()).to.equal('Your name is: Guillaumeh\r');
-        done();
+describe('More complex HTTP server using node', () => {
+  describe('/students endpoint', () => {
+    describe('When the database is available', () => {
+      before(() => {
+        process.argv[2] = './database.csv';
+      });
+      it('Returns the right content', (done) => {
+        chai.request(app)
+          .get('/students')
+          .end((error, response) => {
+            chai.expect(response.statusCode).to.equal(200);
+            console.log(response.text);
+            chai.expect(response.text).to.have.string(`This is the list of our students
+Number of students: 10
+Number of students in CS: 6. List: Johenn, Arielle, Jonathen, Emmanuel, Guillaume, Katie
+Number of students in SWE: 4. List: Guillaume, Joseph, Paul, Tommy`);
+            done();
+          });
       });
     });
   });

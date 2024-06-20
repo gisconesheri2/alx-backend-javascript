@@ -1,59 +1,40 @@
 const http = require('http');
 const countStudents = require('./3-read_file_async');
 
-const PORT = 1245;
-const HOST = 'localhost';
-const app = http.createServer();
-const DB_PATH = process.argv.length > 2 ? process.argv[2] : '';
+const app = http.createServer((req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.statusCode = 200;
+  if (req.url === '/') {
+    res.end('Hello Holberton School!');
+  }
+  if (req.url === '/students') {
+    if (process.argv[2] !== undefined) {
+      res.write('This is the list of our students\n');
 
-const SERVER_ROUTE_HANDLERS = [
-  {
-    route: '/',
-    handler (_, res) {
-      const responseText = 'Hello Holberton School!';
-      res.setHeader('Content-Type', 'text/plain');
-      res.setHeader('Content-Length', responseText.length);
-      res.statusCode = 200;
-      res.write(Buffer.from(responseText));
-    }
-  },
-  {
-    route: '/students',
-    handler (_, res) {
-      const responseParts = ['This is the list of our students'];
-
-      countStudents(DB_PATH)
-        .then((report) => {
-          responseParts.push(report);
-          const responseText = responseParts.join('\n');
-          res.setHeader('Content-Type', 'text/plain');
-          res.setHeader('Content-Length', responseText.length);
-          res.statusCode = 200;
-          res.write(Buffer.from(responseText));
+      // const countStudents = require('./3-read_file_async');
+      countStudents(process.argv[2])
+        .then((flds) => {
+          res.write(`Number of students: ${flds.numStds}\n`);
+          const sortedKeys = Object.keys(flds).map((fld) => fld.toLowerCase()).sort();
+          for (const k of sortedKeys) {
+            if (k === 'numstds') {
+              continue;
+            }
+            const fld = k.toUpperCase();
+            const stds = flds[k.toUpperCase()];
+            res.write(`Number of students in ${fld}: ${stds.length}. List: ${stds.join(', ')}\n`);
+          }
+          res.end();
         })
         .catch((err) => {
-          responseParts.push(err instanceof Error ? err.message : err.toString());
-          const responseText = responseParts.join('\n');
-          res.setHeader('Content-Type', 'text/plain');
-          res.setHeader('Content-Length', responseText.length);
-          res.statusCode = 200;
-          res.write(Buffer.from(responseText));
+          res.end(err.message);
         });
-    }
-  }
-];
-
-app.on('request', (req, res) => {
-  for (const routeHandler of SERVER_ROUTE_HANDLERS) {
-    if (routeHandler.route === req.url) {
-      routeHandler.handler(req, res);
-      break;
     }
   }
 });
 
-app.listen(PORT, HOST, () => {
-  process.stdout.write(`Server listening at -> http://${HOST}:${PORT}\n`);
+app.listen(1245, '127.0.0.1', () => {
+  console.log('listening');
 });
 
 module.exports = app;

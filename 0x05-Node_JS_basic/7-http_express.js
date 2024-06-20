@@ -10,25 +10,26 @@ app.get('/', (_, res) => {
   res.send('Hello Holberton School!');
 });
 
-app.get('/students', (_, res) => {
-  const responseParts = ['This is the list of our students'];
-
+app.get('/students', (_, response) => {
   countStudents(DB_PATH)
-    .then((report) => {
-      responseParts.push(report);
-      const responseText = responseParts.join('\n');
-      res.setHeader('Content-Type', 'text/plain');
-      res.setHeader('Content-Length', responseText.length);
-      res.statusCode = 200;
-      res.write(Buffer.from(responseText));
+    .then((flds) => {
+      response.status(200);
+      const body = ['This is the list of our students'];
+      body.push(`Number of students: ${flds.numStds}`);
+      const sortedKeys = Object.keys(flds).map((fld) => fld.toLowerCase()).sort();
+      for (const k of sortedKeys) {
+        if (k === 'numstds') {
+          continue;
+        }
+        const fld = k.toUpperCase();
+        const stds = flds[k.toUpperCase()];
+        body.push(`Number of students in ${fld}: ${stds.length}. List: ${stds.join(', ')}`);
+      }
+      response.send(body.join('\n'));
     })
-    .catch((err) => {
-      responseParts.push(err instanceof Error ? err.message : err.toString());
-      const responseText = responseParts.join('\n');
-      res.setHeader('Content-Type', 'text/plain');
-      res.setHeader('Content-Length', responseText.length);
-      res.statusCode = 200;
-      res.write(Buffer.from(responseText));
+    .catch((_) => {
+      response.status(500);
+      response.send('Cannot load the database');
     });
 });
 

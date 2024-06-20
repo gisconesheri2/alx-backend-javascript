@@ -1,6 +1,7 @@
+const fs = require('fs');
 function readDatabase (filePath) {
   return new Promise((resolve, reject) => {
-    const fs = require('fs');
+    
     fs.readFile(filePath, 'utf-8', (err, data) => {
       if (err) {
         reject(new Error('Cannot load the database'));
